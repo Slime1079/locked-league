@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Founders Cup — hosted by Slime</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-black">
+  <div class="min-h-screen bg-black flex flex-col">
+
+    <!-- ===== Navbar ===== -->
+    <nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <a href="#/home" class="flex items-center gap-2">
+            <i data-lucide="trophy" class="size-8 text-emerald-500"></i>
+            <div>
+              <span class="text-xl font-bold text-white">Founders Cup</span>
+              <span class="block text-xs text-zinc-400 leading-none">hosted by Slime</span>
+            </div>
+          </a>
+
+          <div class="hidden md:flex items-center gap-8" id="desktopNav"></div>
+
+          <button id="menuBtn" class="md:hidden text-zinc-300 hover:text-white">
+            <i data-lucide="menu" class="size-6"></i>
+          </button>
+        </div>
+        <div id="mobileMenu" class="md:hidden py-4 border-t border-zinc-800 hidden"></div>
+      </div>
+    </nav>
+
+    <!-- ===== Page containers (filled by JS) ===== -->
+    <main class="flex-1">
+      <div data-page="home"></div>
+      <div data-page="teams" class="hidden"></div>
+      <div data-page="fixtures" class="hidden"></div>
+      <div data-page="standings" class="hidden"></div>
+      <div data-page="players" class="hidden"></div>
+      <div data-page="stats" class="hidden"></div>
+    </main>
+
+    <!-- ===== Footer ===== -->
+    <footer class="bg-zinc-900 border-t border-zinc-800 py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center gap-2 mb-4"><i data-lucide="calendar" class="size-6 text-emerald-500"></i><span class="font-bold text-white">Founders Cup</span></div>
+            <p class="text-zinc-400 text-sm">The world's most exciting football competition.</p>
+          </div>
+          <div>
+            <h3 class="font-bold text-white mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-zinc-400 text-sm">
+              <li><a href="#/fixtures" class="hover:text-white transition-colors">Fixtures</a></li>
+              <li><a href="#/standings" class="hover:text-white transition-colors">Results</a></li>
+              <li><a href="#/standings" class="hover:text-white transition-colors">Tables</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold text-white mb-4">Teams</h3>
+            <ul class="space-y-2 text-zinc-400 text-sm">
+              <li><a href="#/teams" class="hover:text-white transition-colors">All Clubs</a></li>
+              <li><a href="#/players" class="hover:text-white transition-colors">Squads</a></li>
+              <li><a href="#/stats" class="hover:text-white transition-colors">Statistics</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold text-white mb-4">Follow Us</h3>
+            <ul class="space-y-2 text-zinc-400 text-sm">
+              <li><a href="#twitter" class="hover:text-white transition-colors">Twitter</a></li>
+              <li><a href="#instagram" class="hover:text-white transition-colors">Instagram</a></li>
+              <li><a href="#youtube" class="hover:text-white transition-colors">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-8 pt-8 border-t border-zinc-800 text-center text-zinc-400 text-sm">
+          <p>&copy; 2026 Founders Cup. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    /* ---------- Shared data ---------- */
+    const NAME = 'Slime';
+    const STAT = 67;
+    const IMGS = [
+      'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBwbGF5ZXIlMjBhY3Rpb258ZW58MXx8fHwxNzgyNDY1ODU4fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1641159009736-8a5fd4e52fef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHRlYW0lMjBjZWxlYnJhdGluZ3xlbnwxfHx8fDE3ODI1MDg4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBiYWxsJTIwZ3Jhc3MlMjBmaWVsZHxlbnwxfHx8fDE3ODI1MDg4MjF8MA&ixlib=rb-4.1.0&q=80&w=1080'
+    ];
+    const HERO_BG = 'https://images.unsplash.com/photo-1679391029864-d46f366a456b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHN0YWRpdW0lMjBuaWdodCUyMGxpZ2h0c3xlbnwxfHx8fDE3ODIzMDI0MTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
+    const POSITIONS = ['Striker','Winger','Midfielder','Defender','Goalkeeper','Striker'];
+
+    /* ---------- Reusable bits ---------- */
+    const sectionHeader = (icon, title) =>
+      `<div class="flex items-center gap-3 mb-8"><i data-lucide="${icon}" class="size-8 text-emerald-500"></i><h2 class="text-3xl font-bold text-white">${title}</h2></div>`;
+
+    const pageHeader = (eyebrow, title, sub) => `
+      <div class="bg-zinc-950 border-b border-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div class="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/50 rounded-full mb-3"><span class="text-emerald-400 text-xs uppercase tracking-wide">${eyebrow}</span></div>
+          <h1 class="text-4xl md:text-5xl font-bold text-white">${title}</h1>
+          ${sub ? `<p class="text-zinc-400 mt-3 max-w-2xl">${sub}</p>` : ''}
+        </div>
+      </div>`;
+
+    function matchCard(status, time) {
+      const cfg = {
+        live:     { color:'bg-red-500',  label:'LIVE',      score:true,  t:'45:00' },
+        upcoming: { color:'bg-emerald-500', label:'Upcoming', score:false, t:time||'17:30' },
+        finished: { color:'bg-zinc-600', label:'Full Time', score:true,  t:'FT' }
+      }[status];
+      const scoreRow = (cfg.score) ? `<span class="text-2xl font-bold text-white">${STAT}</span>` : '';
+      return `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-6 hover:border-emerald-500/50 transition-colors">
+          <div class="flex justify-between items-center mb-4">
+            <span class="px-3 py-1 ${cfg.color} text-white text-xs rounded-full">${cfg.label}</span>
+            <div class="flex items-center gap-1 text-zinc-400 text-sm"><i data-lucide="clock" class="size-4"></i>${cfg.t}</div>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center"><span class="text-white font-medium">${NAME}</span>${scoreRow}</div>
+            <div class="flex justify-between items-center"><span class="text-white font-medium">${NAME}</span>${scoreRow}</div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-zinc-800 flex items-center gap-1 text-zinc-400 text-sm"><i data-lucide="map-pin" class="size-4"></i>${NAME} Stadium</div>
+        </div>`;
+    }
+
+    function playerCard(i) {
+      const pos = POSITIONS[i % POSITIONS.length];
+      const img = IMGS[i % IMGS.length];
+      return `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden hover:border-emerald-500/50 transition-all group">
+          <div class="relative h-64 overflow-hidden bg-gradient-to-br from-zinc-800 to-zinc-900">
+            <img src="${img}" alt="${NAME}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            <div class="absolute top-4 right-4"><div class="px-3 py-1 bg-zinc-900/80 backdrop-blur-sm text-white text-xs rounded-full border border-zinc-700">${pos}</div></div>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl text-white font-bold mb-1">${NAME}</h3>
+            <p class="text-emerald-400 mb-4">${NAME}</p>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-center"><div class="flex items-center justify-center mb-1"><i data-lucide="target" class="size-4 text-emerald-400"></i></div><div class="text-2xl font-bold text-white">${STAT}</div><div class="text-xs text-zinc-400">Goals</div></div>
+              <div class="text-center"><div class="flex items-center justify-center mb-1"><i data-lucide="trending-up" class="size-4 text-blue-400"></i></div><div class="text-2xl font-bold text-white">${STAT}</div><div class="text-xs text-zinc-400">Assists</div></div>
+              <div class="text-center"><div class="flex items-center justify-center mb-1"><i data-lucide="trophy" class="size-4 text-purple-400"></i></div><div class="text-2xl font-bold text-white">${STAT}</div><div class="text-xs text-zinc-400">Apps</div></div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function teamCard() {
+      return `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-6 hover:border-emerald-500/50 transition-colors">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="size-14 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center"><i data-lucide="shield" class="size-7 text-emerald-400"></i></div>
+            <div><h3 class="text-white font-bold text-lg">${NAME}</h3><p class="text-zinc-400 text-sm">${NAME} Stadium</p></div>
+          </div>
+          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-zinc-800 text-center">
+            <div><div class="text-xl font-bold text-white">${STAT}</div><div class="text-xs text-zinc-400">Played</div></div>
+            <div><div class="text-xl font-bold text-white">${STAT}</div><div class="text-xs text-zinc-400">Wins</div></div>
+            <div><div class="text-xl font-bold text-white">${STAT}</div><div class="text-xs text-zinc-400">Points</div></div>
+          </div>
+          <a href="#/standings" class="mt-4 inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm">View in table <i data-lucide="arrow-right" class="size-4"></i></a>
+        </div>`;
+    }
+
+    function standingsTable() {
+      let rows = '';
+      const total = 8;
+      for (let pos = 1; pos <= total; pos++) {
+        const posClass = pos <= 4 ? 'bg-emerald-500/20 text-emerald-400'
+          : pos <= 6 ? 'bg-blue-500/20 text-blue-400'
+          : pos >= total - 1 ? 'bg-red-500/20 text-red-400'
+          : 'text-zinc-400';
+        rows += `
+          <tr class="hover:bg-zinc-800/50 transition-colors">
+            <td class="px-4 py-4"><div class="flex items-center justify-center size-6 rounded-full text-sm ${posClass}">${pos}</div></td>
+            <td class="px-4 py-4 text-white font-medium">${NAME}</td>
+            <td class="px-4 py-4 text-center text-zinc-300">${STAT}</td>
+            <td class="px-4 py-4 text-center text-zinc-300">${STAT}</td>
+            <td class="px-4 py-4 text-center text-zinc-300">${STAT}</td>
+            <td class="px-4 py-4 text-center text-zinc-300">${STAT}</td>
+            <td class="px-4 py-4 text-center text-zinc-300">${STAT}</td>
+            <td class="px-4 py-4 text-center text-zinc-300">${STAT}</td>
+            <td class="px-4 py-4 text-center text-emerald-400">+${STAT}</td>
+            <td class="px-4 py-4 text-center font-bold text-white">${STAT}</td>
+          </tr>`;
+      }
+      return `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-zinc-800">
+                <tr>
+                  ${['Pos','Team','Pl','W','D','L','GF','GA','GD','Pts'].map((h,idx)=>`<th class="px-4 py-3 ${idx<2?'text-left':'text-center'} text-xs text-zinc-400 uppercase tracking-wider">${h}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-800">${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function newsCard(category, date, title, excerpt, img) {
+      return `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden hover:border-emerald-500/50 transition-all group">
+          <div class="relative h-48 overflow-hidden">
+            <img src="${img}" alt="news" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            <div class="absolute top-4 left-4"><span class="px-3 py-1 bg-emerald-500 text-white text-xs rounded-full">${category}</span></div>
+          </div>
+          <div class="p-6">
+            <div class="text-zinc-400 text-sm mb-2">${date}</div>
+            <h3 class="text-xl text-white font-bold mb-2 group-hover:text-emerald-400 transition-colors">${title}</h3>
+            <p class="text-zinc-400 mb-4">${excerpt}</p>
+            <button class="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors">Read More<i data-lucide="arrow-right" class="size-4"></i></button>
+          </div>
+        </div>`;
+    }
+
+    const viewAll = (href, label) =>
+      `<a href="${href}" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm mt-6">${label} <i data-lucide="arrow-right" class="size-4"></i></a>`;
+
+    const grid3 = (inner) => `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${inner}</div>`;
+    const sectionWrap = (bg, inner) => `<section class="py-16 ${bg}"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">${inner}</div></section>`;
+
+    /* ---------- Pages ---------- */
+    function buildHome() {
+      const hero = `
+        <div class="relative h-[500px] overflow-hidden">
+          <div class="absolute inset-0">
+            <img src="${HERO_BG}" alt="Football Stadium" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+          </div>
+          <div class="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+            <div class="max-w-2xl">
+              <div class="inline-block px-4 py-1 bg-emerald-500/20 border border-emerald-500/50 rounded-full mb-4"><span class="text-emerald-400 text-sm">Season 2025/26</span></div>
+              <h1 class="text-5xl md:text-6xl font-bold text-white mb-2">Welcome to the<br />Founders Cup</h1>
+              <p class="text-emerald-400 text-sm font-medium mb-4 tracking-wide uppercase">hosted by Slime</p>
+              <p class="text-xl text-zinc-300 mb-8">Experience the world's most exciting football competition with live scores, standings, and exclusive content.</p>
+              <div class="flex flex-wrap gap-4">
+                <a href="#/fixtures" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors flex items-center gap-2"><i data-lucide="calendar" class="size-5"></i>View Fixtures</a>
+                <a href="#/standings" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors flex items-center gap-2"><i data-lucide="trending-up" class="size-5"></i>Standings</a>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      const matches = sectionWrap('bg-zinc-950',
+        sectionHeader('calendar','Latest Matches') + grid3(matchCard('live') + matchCard('upcoming') + matchCard('finished')) + viewAll('#/fixtures','View all fixtures'));
+
+      const standings = sectionWrap('bg-black',
+        sectionHeader('trending-up','League Standings') + standingsTable() + viewAll('#/standings','Full table'));
+
+      const players = sectionWrap('bg-zinc-950',
+        sectionHeader('users','Top Players') + grid3(playerCard(0) + playerCard(1) + playerCard(2)) + viewAll('#/players','All players'));
+
+      const news = sectionWrap('bg-black',
+        sectionHeader('newspaper','Latest News') + grid3(
+          newsCard('Match Report','June 25, 2026','Slime Close Gap at Top with Dominant Performance','Slime put on a masterclass to defeat their rivals and move within touching distance of the top spot.', IMGS[1]) +
+          newsCard('Transfer News','June 24, 2026','Transfer Window: Top Targets for Summer 2026','As the transfer window approaches, we look at the biggest names linked with moves across the league.', IMGS[0]) +
+          newsCard('Awards','June 23, 2026','Player of the Month: Outstanding Performances',"This month's standout performer has been setting the league alight with incredible displays week after week.", IMGS[2])
+        ));
+
+      return hero + matches + standings + players + news;
+    }
+
+    function buildTeams() {
+      let cards = '';
+      for (let i = 0; i < 8; i++) cards += teamCard();
+      return pageHeader('Clubs','Teams','Every club competing in the Founders Cup this season.') +
+        sectionWrap('bg-black', `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">${cards}</div>`);
+    }
+
+    function buildFixtures() {
+      const cards = [matchCard('live'), matchCard('live'), matchCard('upcoming'), matchCard('upcoming','19:45'), matchCard('finished'), matchCard('finished')].join('');
+      return pageHeader('Schedule','Fixtures & Results','Live games, upcoming kickoffs and recent full-time results.') +
+        sectionWrap('bg-black', grid3(cards));
+    }
+
+    function buildStandings() {
+      return pageHeader('Table','League Standings','How the clubs rank across the full season.') +
+        sectionWrap('bg-black', standingsTable());
+    }
+
+    function buildPlayers() {
+      let cards = '';
+      for (let i = 0; i < 6; i++) cards += playerCard(i);
+      return pageHeader('Squads','Players','The standout performers across every club.') +
+        sectionWrap('bg-black', grid3(cards));
+    }
+
+    function buildStats() {
+      const statTile = (icon, label) => `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-6 text-center">
+          <div class="flex items-center justify-center mb-2"><i data-lucide="${icon}" class="size-6 text-emerald-400"></i></div>
+          <div class="text-3xl font-bold text-white">${STAT}</div>
+          <div class="text-xs text-zinc-400 mt-1">${label}</div>
+        </div>`;
+
+      const leaderRow = (i) => `
+        <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-800 last:border-0 hover:bg-zinc-800/40 transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="text-zinc-500 w-5 text-sm text-right">${i}</span>
+            <div class="size-9 rounded-full bg-zinc-800 flex items-center justify-center"><i data-lucide="user" class="size-4 text-zinc-400"></i></div>
+            <div><div class="text-white leading-tight">${NAME}</div><div class="text-zinc-500 text-xs">${NAME}</div></div>
+          </div>
+          <span class="text-emerald-400 font-bold text-lg">${STAT}</span>
+        </div>`;
+
+      const leaderboard = (icon, title) => {
+        let rows = '';
+        for (let i = 1; i <= 5; i++) rows += leaderRow(i);
+        return `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-3 bg-zinc-800"><i data-lucide="${icon}" class="size-5 text-emerald-400"></i><h3 class="text-white font-bold">${title}</h3></div>
+            <div>${rows}</div>
+          </div>`;
+      };
+
+      const tiles = `<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        ${statTile('target','Goals Scored')}${statTile('zap','Assists')}${statTile('shield-check','Clean Sheets')}${statTile('square','Yellow Cards')}
+      </div>`;
+
+      const boards = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        ${leaderboard('target','Top Scorers')}${leaderboard('zap','Top Assists')}
+      </div>`;
+
+      return pageHeader('Numbers','Statistics','Leaderboards and league-wide totals for the season.') +
+        sectionWrap('bg-black', tiles + boards);
+    }
+
+    /* ---------- Navigation / Router ---------- */
+    const PAGES = [
+      { id:'home',      label:'Home',      build:buildHome },
+      { id:'teams',     label:'Teams',     build:buildTeams },
+      { id:'fixtures',  label:'Fixtures',  build:buildFixtures },
+      { id:'standings', label:'Standings', build:buildStandings },
+      { id:'players',   label:'Players',   build:buildPlayers },
+      { id:'stats',     label:'Stats',     build:buildStats }
+    ];
+
+    // Build nav links
+    const desktopNav = document.getElementById('desktopNav');
+    const mobileMenu = document.getElementById('mobileMenu');
+    desktopNav.innerHTML = PAGES.map(p =>
+      `<a data-nav="${p.id}" href="#/${p.id}" class="text-zinc-300 hover:text-white transition-colors relative group">${p.label}<span class="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500 group-hover:w-full transition-all duration-300"></span></a>`
+    ).join('');
+    mobileMenu.innerHTML = PAGES.map(p =>
+      `<a data-nav-m="${p.id}" href="#/${p.id}" class="block py-2 text-zinc-300 hover:text-white transition-colors">${p.label}</a>`
+    ).join('');
+
+    // Populate page content once
+    PAGES.forEach(p => { document.querySelector(`[data-page="${p.id}"]`).innerHTML = p.build(); });
+    lucide.createIcons();
+
+    function showPage(name) {
+      if (!PAGES.some(p => p.id === name)) name = 'home';
+      document.querySelectorAll('[data-page]').forEach(el => el.classList.toggle('hidden', el.dataset.page !== name));
+      document.querySelectorAll('[data-nav]').forEach(a => {
+        const active = a.dataset.nav === name;
+        a.classList.toggle('text-white', active);
+        a.classList.toggle('text-zinc-300', !active);
+      });
+      mobileMenu.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    }
+
+    function routeFromHash() {
+      const name = (location.hash.replace('#/', '') || 'home').trim();
+      showPage(name);
+    }
+
+    window.addEventListener('hashchange', routeFromHash);
+    document.getElementById('menuBtn').addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    // Initial route
+    if (!location.hash) location.hash = '#/home';
+    routeFromHash();
+  </script>
+</body>
+</html>
